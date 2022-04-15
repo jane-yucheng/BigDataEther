@@ -33,3 +33,15 @@ df4.createOrReplaceTempView("df4")
 spark.sql("SELECT * FROM df4 INNER JOIN df6 ON df4.dates = df6.DateTime")
 
 val tweetsSales = spark.sql("SELECT * FROM df4 INNER JOIN df6 ON df4.dates = df6.DateTime")
+
+val df9 = spark.read.options(Map("inferSchema"->"true","delimiter"->",","header"->"true")).csv("cleanSource/output/price.csv")
+
+val df10 = df9.withColumn("Date", date_format(to_date(col("Date"), "MM/dd/yy"), "yyyy-MM-dd"))
+
+df10.createOrReplaceTempView("df10")
+
+tweetsSales.createOrReplaceTempView("merger")
+
+val merged = spark.sql("SELECT * FROM df10 INNER JOIN merger ON df10.Date = merger.dates")
+
+//merged has everything
