@@ -40,7 +40,10 @@ dailyAverages.createOrReplaceTempView("dailyAverages")
 spark.sql("SELECT dailyAverages.DailyAverage, MainFrame.* FROM dailyAverages INNER JOIN MainFrame ON dailyAverages.Date = MainFrame.Date")
 val newFrame = spark.sql("SELECT MainFrame.*, dailyAverages.DailyAverage FROm MainFrame LEFT JOIN dailyAverages ON MainFrame.Date = dailyAverages.Date ORDER BY Date")
 newFrame.createOrReplaceTempView("newMain")
+//export for jane
+val mergetemp = spark.sql("SELECT Date, DailyAverage as Price, Sales FROM newMain")
 
+mergetemp.coalesce(1).write.option("header","true").csv("merged.csv")
 //What is the overall average Price
 spark.sql("SELECT AVG(DailyAverage) FROM newMain").show()
 //1322.0268310546874|
